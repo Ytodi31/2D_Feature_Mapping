@@ -65,7 +65,7 @@ int main(int argc, const char *argv[])
         dataBuffer.push_back(frame);
       
       	if (dataBuffer.size()> dataBufferSize)
-          dataBuffer.erase(dataBuffer.begin());
+        dataBuffer.erase(dataBuffer.begin());
 		cout << "Size: " << dataBuffer.size() << endl;
         //// EOF STUDENT ASSIGNMENT
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
@@ -102,11 +102,14 @@ int main(int argc, const char *argv[])
         // only keep keypoints on the preceding vehicle
         bool bFocusOnVehicle = true;
         cv::Rect vehicleRect(535, 180, 180, 150);
-        if (bFocusOnVehicle)
+        if (bFocusOnVehicle) 
         {
-            // ...
+          for (auto it = keypoints.begin(); it < keypoints.end(); it++){
+            if((*it).pt.x < 535 || (*it).pt.x > 535 + 180 || (*it).pt.y < 180 || (*it).pt.y >180 + 150)
+              keypoints.erase(it);           
         }
-
+        }
+		std::cout << "Reduced size now is: " << keypoints.size() << std::endl;
         //// EOF STUDENT ASSIGNMENT
 
         // optional : limit number of keypoints (helpful for debugging and learning)
@@ -134,7 +137,9 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType;// BRIEF, ORB, FREAK, AKAZE, SIFT
+        std::cout << "Enter the descriptor you wish to use: " << std::endl;
+      	std::cin >> descriptorType;
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
@@ -192,3 +197,4 @@ int main(int argc, const char *argv[])
 
     return 0;
 }
+
