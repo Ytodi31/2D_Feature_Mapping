@@ -16,10 +16,17 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     {
         int normType = cv::NORM_HAMMING;
         matcher = cv::BFMatcher::create(normType, crossCheck);
+      cout << "Brute Force matching" << std::endl;
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+       if (descSource.type() != CV_32F)
+        { convert binary descriptors to floating point due to a bug in current OpenCV implementation
+            descSource.convertTo(descSource, CV_32F);
+            descRef.convertTo(descRef, CV_32F);
+        }
+      	matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+        cout << "FLANN matching" << std::endl;
     }
 
     // perform matching task
@@ -30,8 +37,9 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
+		int k = 2;
+    	matcher->knnMatch(descSource, descRef, matches, k);
 
-        // ...
     }
 }
 
