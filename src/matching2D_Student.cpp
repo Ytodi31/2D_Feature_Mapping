@@ -16,12 +16,12 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     {
         int normType = cv::NORM_HAMMING;
         matcher = cv::BFMatcher::create(normType, crossCheck);
-      cout << "Brute Force matching" << std::endl;
+        cout << "Brute Force matching" << std::endl;
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
        if (descSource.type() != CV_32F)
-        { convert binary descriptors to floating point due to a bug in current OpenCV implementation
+        { // convert binary descriptors to floating point due to a bug in current OpenCV implementation
             descSource.convertTo(descSource, CV_32F);
             descRef.convertTo(descRef, CV_32F);
         }
@@ -38,8 +38,14 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
 		int k = 2;
-    	matcher->knnMatch(descSource, descRef, matches, k);
-
+       vector<vector<cv::DMatch>> knn_matches;
+    	matcher->knnMatch(descSource, descRef, knn_matches, k);
+        double minDescDistRatio = 0.8;
+        for (auto it = knn_matches.begin(); it != knn_matches.end(); ++it)
+        {
+            if ((*it)[0].distance < minDescDistRatio * (*it)[1].distance)
+                matches.push_back((*it)[0]);
+        }
     }
 }
 
